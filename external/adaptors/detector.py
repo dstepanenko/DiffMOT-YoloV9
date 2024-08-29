@@ -4,11 +4,11 @@ import pickle
 
 import torch
 
-from external.adaptors import yolox_adaptor
+from external.adaptors import yolox_adaptor, yolov9_adaptor
 
 
 class Detector(torch.nn.Module):
-    K_MODELS = {"yolox"}
+    K_MODELS = {"yolox", "yolov9"}
 
     def __init__(self, model_type, path, dataset):
         super().__init__()
@@ -35,6 +35,8 @@ class Detector(torch.nn.Module):
         """Wait until needed."""
         if self.model_type == "yolox":
             self.model = yolox_adaptor.get_model(self.path, self.dataset)
+        elif self.model_type == "yolov9":
+            self.model = yolov9_adaptor.get_model(self.path, self.dataset)
 
     def forward(self, batch, tag=None):
         if tag in self.cache:
