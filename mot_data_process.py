@@ -7,9 +7,11 @@ def mkdirs(d):
     if not osp.exists(d):
         os.makedirs(d)
 
+#seq_root = '/mnt/8T/home/estar/data/MOT/train'
+#label_root = '/mnt/8T/home/estar/data/MOT/trackers_gt/train'
 
-seq_root = '/mnt/8T/home/estar/data/MOT/train'
-label_root = '/mnt/8T/home/estar/data/MOT/trackers_gt/train'
+seq_root = '/home/ubuntu/sportsmot_example/dataset/train'
+label_root = '/home/ubuntu/sportsmot_example/dataset/trackers_gt/train'
 mkdirs(label_root)
 seqs = [s for s in os.listdir(seq_root)]
 

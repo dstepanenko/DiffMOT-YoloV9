@@ -7,7 +7,7 @@ tensorboardX
 tqdm
 opencv-python
 scipy
-lap
+lapx
 cython
 cython-bbox
 fvcore
