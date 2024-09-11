@@ -1,5 +1,6 @@
 import os
 import torch
+import cv2
 
 import numpy as np
 import os.path as osp
@@ -76,7 +77,7 @@ class DiffMOT():
 
     def eval(self):
         det_root = self.config.det_dir
-        img_root = det_root.replace('/detections/', '/')
+        img_path = self.config.get("orig_img_dir", None)
 
         seqs = [s for s in os.listdir(det_root)]
         seqs.sort()
@@ -84,7 +85,6 @@ class DiffMOT():
         for seq in seqs:
             print(seq)
             det_path = osp.join(det_root, seq)
-            img_path = osp.join(img_root, seq, 'img1')
 
             info_path = osp.join(self.config.info_dir, seq, 'seqinfo.ini')
             seq_info = open(info_path).read()
@@ -98,6 +98,10 @@ class DiffMOT():
 
             frames = [s for s in os.listdir(det_path)]
             frames.sort()
+            if img_path is None:
+                img_root = det_root.replace('/detections/', '/')
+                img_path = osp.join(img_root, seq, 'img1')
+
             imgs = [s for s in os.listdir(img_path)]
             imgs.sort()
 
@@ -107,14 +111,14 @@ class DiffMOT():
 
                 timer.tic()
                 f_path = osp.join(det_path, f)
-                dets = np.loadtxt(f_path, dtype=np.float32, delimiter=',').reshape(-1, 6)[:, 1:6]
-
+                # dets = np.loadtxt(f_path, dtype=np.float32, delimiter=',').reshape(-1, 6)[:, 1:6]
+                dets = np.loadtxt(f_path, dtype=np.float32, delimiter=',')[:,2:7] # TODO: fix for files made by Felix containing extra -1 at the 2nd position which is not needed
                 im_path = osp.join(img_path, imgs[i])
-                # img = cv2.imread(im_path)
+                img = cv2.imread(im_path)
                 tag = f"{seq}:{frame_id+1}"
                 # track
-                # online_targets = tracker.update(dets, self.model, frame_id, seq_width, seq_height, tag, img)
-                online_targets = tracker.update(dets, self.model, frame_id, seq_width, seq_height, tag)
+                online_targets = tracker.update(dets, self.model, frame_id, seq_width, seq_height, tag, img)
+                # online_targets = tracker.update(dets, self.model, frame_id, seq_width, seq_height, tag)
                 online_tlwhs = []
                 online_ids = []
                 for t in online_targets:

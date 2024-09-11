@@ -13,9 +13,9 @@ from external.adaptors.fastreid_adaptor import FastReID
 
 
 class EmbeddingComputer:
-    def __init__(self, config, dataset, test_dataset, grid_off, max_batch=1024):
+    def __init__(self, config, model_path, test_dataset, grid_off, max_batch=1024):
         self.model = None
-        self.dataset = dataset
+        self.model_path = model_path
         self.test_dataset = test_dataset
         self.crop_size = (128, 384)
         os.makedirs(config.reid_dir, exist_ok=True)
@@ -98,7 +98,6 @@ class EmbeddingComputer:
     def compute_embedding(self, img, bbox, tag):
         if self.cache_name != tag.split(":")[0]:
             self.load_cache(tag.split(":")[0])
-
         if tag in self.cache:
             embs = self.cache[tag]
             if embs.shape[0] != bbox.shape[0]:
@@ -112,7 +111,8 @@ class EmbeddingComputer:
             self.initialize_model()
 
         # Generate all of the patches
-        crops = []
+
+        embs = []
         if self.grid_off:
             # Basic embeddings
             h, w = img.shape[:2]
@@ -125,7 +125,8 @@ class EmbeddingComputer:
             results[:, 3] = results[:, 3].clip(0, h)
 
             crops = []
-            for p in results:
+            for p_id in range(len(results)):
+                p = results[p_id]
                 crop = img[p[1] : p[3], p[0] : p[2]]
                 # print(p)
                 crop = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
@@ -137,21 +138,29 @@ class EmbeddingComputer:
                 crop = torch.as_tensor(crop.transpose(2, 0, 1))
                 crop = crop.unsqueeze(0)
                 crops.append(crop)
+
+                if len(crops) == self.max_batch or p_id == len(results) - 1:
+                    print("Processing batch for p_id = " + str(p_id))
+                    batch_crops = torch.cat(crops, dim=0)
+                    batch_crops = batch_crops.cuda()
+                    with torch.no_grad():
+                        batch_embs = self.model(batch_crops)
+                    embs.extend(batch_embs)
+                    crops = []
         else:
             # Grid patch embeddings
+            crops = []
             for idx, box in enumerate(bbox):
                 crop = self.get_horizontal_split_patches(img, box, tag, idx)
                 crops.append(crop)
-        crops = torch.cat(crops, dim=0)
-
-        # Create embeddings and l2 normalize them
-        embs = []
-        for idx in range(0, len(crops), self.max_batch):
-            batch_crops = crops[idx : idx + self.max_batch]
-            batch_crops = batch_crops.cuda()
-            with torch.no_grad():
-                batch_embs = self.model(batch_crops)
-            embs.extend(batch_embs)
+            crops = torch.cat(crops, dim=0)
+            # Create embeddings and l2 normalize them
+            for idx in range(0, len(crops), self.max_batch):
+                batch_crops = crops[idx : idx + self.max_batch]
+                batch_crops = batch_crops.cuda()
+                with torch.no_grad():
+                    batch_embs = self.model(batch_crops)
+                embs.extend(batch_embs)
         embs = torch.stack(embs)
         embs = torch.nn.functional.normalize(embs, dim=-1)
 
@@ -163,25 +172,7 @@ class EmbeddingComputer:
         return embs
 
     def initialize_model(self):
-        if self.dataset == "mot17":
-            if self.test_dataset:
-                path = "external/weights/mot17_sbs_S50.pth"
-            else:
-                return self._get_general_model()
-        elif self.dataset == "mot20":
-            if self.test_dataset:
-                path = "external/weights/mot20_sbs_S50.pth"
-            else:
-                return self._get_general_model()
-        elif self.dataset == "dancetrack":
-            path = "external/weights/dance_sbs_S50.pth"
-            # path = "/home/estar/lwy/DiffMOT/external/weights/dancetrack_sbs_S50_hybtid.pth"
-        elif self.dataset == "sportsmot":
-            path = "/home/estar/lwy/BoT-SORT-main/fast_reid/tools/logs/SportsMOT/sbs_S50/model_0058.pth"
-        else:
-            raise RuntimeError("Need the path for a new ReID model.")
-
-        model = FastReID(path)
+        model = FastReID(self.model_path)
         model.eval()
         model.cuda()
         model.half()

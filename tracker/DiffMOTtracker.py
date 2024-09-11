@@ -248,7 +248,8 @@ class diffmottracker(object):
         self.std = np.array([0.289, 0.274, 0.278], dtype=np.float32).reshape(1, 1, 3)
 
         # self.kalman_filter = KalmanFilter()
-        self.embedder = EmbeddingComputer(self.config, self.config.embedding_dataset, False, True)
+        # self.embedder = EmbeddingComputer(self.config, self.config.embedding_dataset, False, True)
+        self.embedder = EmbeddingComputer(self.config, self.config.reid_model_path, False, True)
         self.alpha_fixed_emb = 0.95
 
 

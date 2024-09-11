@@ -20,10 +20,11 @@ gpus: [0]
 # Testing
 eval_at: 1200
 embedding_dataset: "sportsmot"
-det_dir: "/home/ubuntu/diffmot_root/sportsmot/detections/test"
-info_dir: '/home/ubuntu/diffmot_root/sportsmot/test' # '/mnt/8T/home/estar/data/DanceTrack/val'
-reid_dir: "/home/ubuntu/reid_embeddings/sportsmot/embeddings" #"/home/estar/lwy/DiffMOT/cache/embeddings/"
-save_dir: "/home/ubuntu/diffmot_root/results" #"/mnt/8T/home/estar/data/DanceTrack/results/val/yolox_m_lt_ddm_1000eps_deeper_800_1rev"
+det_dir: "/home/ubuntu/wallenhorst_root/detection/SVR_TSV_Wallenhorst" # "/home/ubuntu/diffmot_root/sportsmot/detections/test"
+info_dir: '/home/ubuntu/wallenhorst_root/SVR_TSV_Wallenhorst' # '/mnt/8T/home/estar/data/DanceTrack/val'
+reid_dir: "/home/ubuntu/reid_embeddings/wallenhorst/embeddings" #"/home/estar/lwy/DiffMOT/cache/embeddings/"
+save_dir: "/home/ubuntu/wallenhorst_root/results" #"/mnt/8T/home/estar/data/DanceTrack/results/val/yolox_m_lt_ddm_1000eps_deeper_800_1rev"
+orig_img_dir: "/home/ubuntu/wallenhorst_root/images_orig"
 reid_model_path: "/home/ubuntu/reid_embeddings/sports_sbs_S50.pth"
 eval_expname: lt_ddm_1000_deeper
 high_thres: 0.6

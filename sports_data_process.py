@@ -10,8 +10,8 @@ def mkdirs(d):
 
 #seq_root = '/mnt/8T/home/estar/data/sportsmot/sportsmot_publish/dataset/train'
 #label_root = '/mnt/8T/home/estar/data/sportsmot/sportsmot_publish/dataset/trackers_gt_t/train'
-seq_root = '/home/ubuntu/diffmot_root/sportsmot/train'
-label_root = '/home/ubuntu/diffmot_root/sportsmot/trackers_gt/train' 
+seq_root = '/home/ubuntu/diffmot_root/sportsmot/test'
+label_root = '/home/ubuntu/diffmot_root/sportsmot/trackers_gt/test'
 mkdirs(label_root)
 seqs = [s for s in os.listdir(seq_root)]
 
