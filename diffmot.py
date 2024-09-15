@@ -111,8 +111,7 @@ class DiffMOT():
 
                 timer.tic()
                 f_path = osp.join(det_path, f)
-                # dets = np.loadtxt(f_path, dtype=np.float32, delimiter=',').reshape(-1, 6)[:, 1:6]
-                dets = np.loadtxt(f_path, dtype=np.float32, delimiter=',')[:,2:7] # TODO: fix for files made by Felix containing extra -1 at the 2nd position which is not needed
+                dets = np.loadtxt(f_path, dtype=np.float32, delimiter=',').reshape(-1, 6)[:, 1:6]
                 im_path = osp.join(img_path, imgs[i])
                 img = cv2.imread(im_path)
                 tag = f"{seq}:{frame_id+1}"
