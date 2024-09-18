@@ -140,7 +140,6 @@ class EmbeddingComputer:
                 crops.append(crop)
 
                 if len(crops) == self.max_batch or p_id == len(results) - 1:
-                    print("Processing batch for p_id = " + str(p_id))
                     batch_crops = torch.cat(crops, dim=0)
                     batch_crops = batch_crops.cuda()
                     with torch.no_grad():

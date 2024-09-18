@@ -94,7 +94,6 @@ class DiffMOT():
             tracker = diffmottracker(self.config)
             timer = Timer()
             results = []
-            frame_id = 0
 
             frames = [s for s in os.listdir(det_path)]
             frames.sort()
@@ -106,6 +105,7 @@ class DiffMOT():
             imgs.sort()
 
             for i, f in enumerate(frames):
+                frame_id = int(f.split(".")[0].split("_")[-1])
                 if frame_id % 10 == 0:
                     logger.info('Processing frame {} ({:.2f} fps)'.format(frame_id, 1. / max(1e-5, timer.average_time)))
 
@@ -127,8 +127,7 @@ class DiffMOT():
                     online_ids.append(tid)
                 timer.toc()
                 # save results
-                results.append((frame_id + 1, online_tlwhs, online_ids))
-                frame_id += 1
+                results.append((frame_id, online_tlwhs, online_ids))
 
             tracker.dump_cache()
             result_root = self.config.save_dir
